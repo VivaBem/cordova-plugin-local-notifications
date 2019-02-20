@@ -557,6 +557,13 @@ public final class Options {
     }
 
     /**
+     * If the notification is custom
+     */
+    public boolean isCustom() {
+        return options.optBoolean("custom", false);
+    }
+
+    /**
      * The summary for inbox style notifications.
      */
     String getSummary() {

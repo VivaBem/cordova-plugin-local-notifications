@@ -31,11 +31,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.MessagingStyle.Message;
 import android.support.v4.media.app.NotificationCompat.MediaStyle;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.widget.RemoteViews;
 
 import java.util.List;
 import java.util.Random;
 
 import de.appplant.cordova.plugin.notification.action.Action;
+import io.cordova.hellocordova.R;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static de.appplant.cordova.plugin.notification.Notification.EXTRA_UPDATE;
@@ -110,6 +112,11 @@ public final class Builder {
      * @return The final notification to display.
      */
     public Notification build() {
+
+        if(options.isCustom()){
+            return customBuild();
+        }
+
         NotificationCompat.Builder builder;
 
         if (options.isSilent()) {
@@ -135,12 +142,9 @@ public final class Builder {
                 .setOngoing(options.isSticky())
                 .setColor(options.getColor())
                 .setVisibility(options.getVisibility())
-                .setPriority(options.getPrio())
-                .setShowWhen(options.showClock())
-                .setUsesChronometer(options.showChronometer())
+                .setUsesChronometer(options.isWithProgressBar())
                 .setGroup(options.getGroup())
                 .setGroupSummary(options.getGroupSummary())
-                .setTimeoutAfter(options.getTimeout())
                 .setLights(options.getLedColor(), options.getLedOn(), options.getLedOff());
 
         if (sound != Uri.EMPTY && !isUpdate()) {
@@ -163,6 +167,81 @@ public final class Builder {
 
         applyStyle(builder);
         applyActions(builder);
+        applyDeleteReceiver(builder);
+        applyContentReceiver(builder);
+
+        return new Notification(context, options, builder);
+    }
+
+    /**
+     * Creates a custom notification with all its options passed through JS.
+     *
+     * @return The final notification to display.
+     */
+    public Notification customBuild() {
+        NotificationCompat.Builder builder;
+
+        if (options.isSilent()) {
+            return new Notification(context, options);
+        }
+
+        Uri sound     = options.getSound();
+        Bundle extras = new Bundle();
+
+        extras.putInt(Notification.EXTRA_ID, options.getId());
+        extras.putString(Options.EXTRA_SOUND, sound.toString());
+
+        RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_notification);
+        notificationLayout.setTextViewText(R.id.question, options.getTitle());
+
+
+        Action actions[] = options.getActions();
+        if (actions != null || actions.length != 0) {
+            int buttons[] = {R.id.button1, R.id.button2, R.id.button3};
+
+            for(int i = 0; i < buttons.length && i < actions.length; i++){
+                notificationLayout.setTextViewText(buttons[i], actions[i].getTitle());
+                notificationLayout.setOnClickPendingIntent(buttons[i], getPendingIntentForAction(actions[i]));
+            }
+        }
+
+        List<Bitmap> pics = options.getAttachments();
+
+        if (pics.size() > 0) {
+            notificationLayout.setImageViewBitmap(R.id.action_image, pics.get(0));
+        }
+
+        builder = findOrCreateBuilder()
+                .setDefaults(options.getDefaults())
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(notificationLayout)
+                .setExtras(extras)
+                .setOnlyAlertOnce(false)
+                .setChannelId(options.getChannel())
+                .setContentTitle(options.getTitle())
+                .setContentText(options.getText())
+                .setTicker(options.getText())
+                .setNumber(options.getNumber())
+                .setAutoCancel(options.isAutoClear())
+                .setOngoing(options.isSticky())
+                .setColor(options.getColor())
+                .setVisibility(options.getVisibility())
+                .setUsesChronometer(options.isWithProgressBar())
+                .setGroup(options.getGroup())
+                .setGroupSummary(options.getGroupSummary())
+                .setLights(options.getLedColor(), options.getLedOn(), options.getLedOff());
+
+        if (sound != Uri.EMPTY && !isUpdate()) {
+            builder.setSound(sound);
+        }
+
+        if (options.hasLargeIcon()) {
+            builder.setSmallIcon(options.getSmallIcon());
+            builder.setLargeIcon(options.getLargeIcon());
+        } else {
+            builder.setSmallIcon(options.getSmallIcon());
+        }
+
         applyDeleteReceiver(builder);
         applyContentReceiver(builder);
 
