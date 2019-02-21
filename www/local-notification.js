@@ -55,7 +55,8 @@ exports._defaults = {
     title         : '',
     trigger       : { type : 'calendar' },
     vibrate       : false,
-    wakeup        : true
+    wakeup        : true,
+    custom        : false
 };
 
 // Event listener
