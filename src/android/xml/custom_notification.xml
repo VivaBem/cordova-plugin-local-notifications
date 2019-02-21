@@ -19,25 +19,33 @@
             android:scaleType="centerCrop"
             tools:src="@tools:sample/backgrounds/scenic" />
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Roda da ViBe - Perguntas"
-            android:textColor="#FFF"
-            android:textSize="20dp"
-            android:background="#70000000"
-            android:padding="5dp"/>
-
-        <TextView
-            android:id="@+id/question"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Text"
-            android:textColor="#FFF"
-            android:textSize="15dp"
-            android:gravity="left|center"
-            android:layout_marginLeft="5dp"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Roda da ViBe - Perguntas"
+                android:textColor="#FFF"
+                android:textSize="20dp"
+                android:background="#80000000"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/question"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Text"
+                android:textColor="#FFF"
+                android:textSize="16dp"
+                android:gravity="left|bottom"
+                android:padding="5dp"
+                android:background="#30000000"/>
+
+        </LinearLayout>
 
     </FrameLayout>
 
